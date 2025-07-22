@@ -14,7 +14,7 @@ export const props: EnvironmentProps = {
   difySandboxImageTag: 'main',
   difyPluginDaemonImageTag: 'main-local',
   // Set plugin-daemon version to stable release
-  useCloudFront: true,
+  useCloudFront: false,
   customEcrRepositoryName: 'dify-repo',
   domainName: 'rad.cuebic-sre.work',
   subDomain: process.env.SUBDOMAIN ?? 'dify-sandbox',
@@ -41,7 +41,7 @@ if ((props.useCloudFront ?? true) && (props.domainName || props.allowedIPv4Cidrs
   });
 }
 
-new DifyOnAwsStack(app, 'DifyOnAwsStack', {
+new DifyOnAwsStack(app, `DifyOnAwsStack${props.subDomain ? `-${props.subDomain}` : ''}`, {
   env: { region: props.awsRegion, account: props.awsAccount },
   crossRegionReferences: true,
   ...props,

@@ -59,7 +59,7 @@ export class Redis extends Construct implements ec2.IConnectable {
     this.endpoint = redis.attrPrimaryEndPointAddress;
 
     this.brokerUrl = new StringParameter(this, 'BrokerUrl', {
-      stringValue: `rediss://:${secret.secretValue.unsafeUnwrap()}@${this.endpoint}:${this.port}/1`,
+      stringValue: `rediss://:${secret.secretValue.unsafeUnwrap()}@${this.endpoint}:${this.port}/1?ssl_cert_reqs=CERT_NONE`,
     });
 
     this.connections = new ec2.Connections({ securityGroups: [securityGroup], defaultPort: ec2.Port.tcp(this.port) });
