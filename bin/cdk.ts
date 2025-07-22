@@ -6,13 +6,18 @@ import { UsEast1Stack } from '../lib/us-east-1-stack';
 import { EnvironmentProps } from '../lib/environment-props';
 
 export const props: EnvironmentProps = {
-  awsRegion: 'us-west-2',
-  awsAccount: process.env.CDK_DEFAULT_ACCOUNT!,
+  awsRegion: 'ap-northeast-1',
+  //   awsAccount: process.env.CDK_DEFAULT_ACCOUNT!,
+  awsAccount: '916388325873',
   // Set Dify version
-  difyImageTag: '1.4.3',
+  difyImageTag: 'main',
+  difySandboxImageTag: 'main',
+  difyPluginDaemonImageTag: 'main-local',
   // Set plugin-daemon version to stable release
-  difyPluginDaemonImageTag: '0.1.2-local',
-
+  useCloudFront: true,
+  customEcrRepositoryName: 'dify-repo',
+  domainName: 'rad.cuebic-sre.work',
+  subDomain: process.env.SUBDOMAIN ?? 'dify-sandbox',
   // uncomment the below options for less expensive configuration:
   // isRedisMultiAz: false,
   // useNatInstance: true,
