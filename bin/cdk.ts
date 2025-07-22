@@ -8,7 +8,7 @@ import { EnvironmentProps } from '../lib/environment-props';
 export const props: EnvironmentProps = {
   awsRegion: 'ap-northeast-1',
   //   awsAccount: process.env.CDK_DEFAULT_ACCOUNT!,
-  awsAccount: '916388325873',
+  awsAccount: process.env.AWS_ACCOUNT || '',
   // Set Dify version
   difyImageTag: 'main',
   difySandboxImageTag: 'main',
