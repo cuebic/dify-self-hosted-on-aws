@@ -18,6 +18,7 @@ export const props: EnvironmentProps = {
   customEcrRepositoryName: 'dify-repo',
   domainName: 'rad.cuebic-sre.work',
   subDomain: process.env.SUBDOMAIN ?? 'dify-sandbox',
+  setupEmail: process.env.SETUP_EMAIL ? process.env.SETUP_EMAIL === 'true' : false,
   // uncomment the below options for less expensive configuration:
   // isRedisMultiAz: false,
   // useNatInstance: true,
