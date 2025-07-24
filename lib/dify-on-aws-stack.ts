@@ -18,14 +18,26 @@ import { EmailService } from './constructs/email';
 /**
  * Mostly inherited from EnvironmentProps
  */
-export interface DifyOnAwsStackProps extends cdk.StackProps, Omit<EnvironmentProps, 'awsRegion' | 'awsAccount'> {
+export interface DifyOnAwsStackProps
+  extends cdk.StackProps,
+    Omit<EnvironmentProps, 'awsRegion' | 'awsAccount' | 'tags'> {
   readonly cloudFrontWebAclArn?: string;
   readonly cloudFrontCertificate?: ICertificate;
+  readonly hostedZone?: HostedZone;
+  readonly setupEmail?: boolean;
+  readonly tags?: { [key: string]: string };
 }
 
 export class DifyOnAwsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: DifyOnAwsStackProps) {
     super(scope, id, { ...props, description: 'Dify on AWS (uksb-zea0rh9k0v)' });
+
+    // スタック全体にタグを適用
+    if (props.tags) {
+      Object.entries(props.tags).forEach(([key, value]) => {
+        cdk.Tags.of(this).add(key, value);
+      });
+    }
 
     const {
       difyImageTag: imageTag = 'latest',

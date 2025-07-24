@@ -97,6 +97,18 @@ export class WebService extends Construct {
       minHealthyPercent: 100,
     });
 
+    // オートスケーリング設定
+    const scaling = service.autoScaleTaskCount({
+      minCapacity: 1,
+      maxCapacity: 10,
+    });
+
+    scaling.scaleOnCpuUtilization('CpuScaling', {
+      targetUtilizationPercent: 50,
+      scaleInCooldown: Duration.seconds(60),
+      scaleOutCooldown: Duration.seconds(60),
+    });
+
     alb.addEcsService('Web', service, port, '/', ['/*']);
   }
 }

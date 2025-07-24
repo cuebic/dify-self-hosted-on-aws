@@ -19,6 +19,10 @@ export const props: EnvironmentProps = {
   domainName: 'rad.cuebic-sre.work',
   subDomain: process.env.SUBDOMAIN ?? 'dify-sandbox',
   setupEmail: process.env.SETUP_EMAIL ? process.env.SETUP_EMAIL === 'true' : false,
+  // コスト管理用タグ
+  tags: {
+    Project: process.env.SUBDOMAIN ?? 'dify-sandbox',
+  },
   // uncomment the below options for less expensive configuration:
   // isRedisMultiAz: false,
   // useNatInstance: true,

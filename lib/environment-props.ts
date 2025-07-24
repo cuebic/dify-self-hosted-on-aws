@@ -180,6 +180,12 @@ export interface EnvironmentProps {
    * @default false
    */
   setupEmail?: boolean;
+
+  /**
+   * Tags to be applied to all resources for cost management and resource organization.
+   * @default No additional tags.
+   */
+  tags?: { [key: string]: string };
 }
 
 export type DifyContainerTypes = 'web' | 'api' | 'worker' | 'sandbox';
