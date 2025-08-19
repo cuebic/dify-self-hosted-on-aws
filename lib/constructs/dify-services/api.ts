@@ -53,8 +53,8 @@ export class ApiService extends Construct {
     const volumeName = 'sandbox';
 
     const taskDefinition = new FargateTaskDefinition(this, 'Task', {
-      cpu: 1024,
-      memoryLimitMiB: 2048, // We got OOM frequently when RAM=512MB
+      cpu: 2048,
+      memoryLimitMiB: 4096, // We got OOM frequently when RAM=512MB
       runtimePlatform: { cpuArchitecture: CpuArchitecture.X86_64 },
       volumes: [
         {
@@ -436,7 +436,13 @@ export class ApiService extends Construct {
     });
 
     scaling.scaleOnCpuUtilization('CpuScaling', {
-      targetUtilizationPercent: 50,
+      targetUtilizationPercent: 70,
+      scaleInCooldown: Duration.seconds(60),
+      scaleOutCooldown: Duration.seconds(60),
+    });
+
+    scaling.scaleOnMemoryUtilization('MemoryScaling', {
+      targetUtilizationPercent: 70,
       scaleInCooldown: Duration.seconds(60),
       scaleOutCooldown: Duration.seconds(60),
     });

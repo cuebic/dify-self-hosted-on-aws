@@ -19,6 +19,20 @@ export const props: EnvironmentProps = {
   domainName: 'rad.cuebic-sre.work',
   subDomain: process.env.SUBDOMAIN ?? 'dify-sandbox',
   setupEmail: process.env.SETUP_EMAIL ? process.env.SETUP_EMAIL === 'true' : false,
+  //   additionalEnvironmentVariables: [
+  //     { key: 'CODE_MAX_STRING_LENGTH', value: '800000', targets: ['api'] },
+  //     { key: 'TEMPLATE_TRANSFORM_MAX_LENGTH', value: '800000', targets: ['api'] },
+  //     { key: 'CODE_MAX_OBJECT_ARRAY_LENGTH', value: '300', targets: ['api'] },
+  //     { key: 'CODE_MAX_STRING_ARRAY_LENGTH', value: '300', targets: ['api'] },
+  //     { key: 'CODE_MAX_DEPTH', value: '10', targets: ['api'] },
+  //     // Notion integration (internal) WIP
+  //     { key: 'NOTION_INTEGRATION_TYPE', value: 'internal', targets: ['api'] },
+  //     {
+  //       key: 'NOTION_INTERNAL_SECRET',
+  //       value: { secretName: 'dify-sandbox', field: 'NOTION_INTERNAL_SECRET' },
+  //       targets: ['api'],
+  //     },
+  //   ],
   // コスト管理用タグ
   tags: {
     Project: process.env.SUBDOMAIN ?? 'dify-sandbox',

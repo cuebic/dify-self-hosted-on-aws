@@ -31,8 +31,8 @@ export class WebService extends Construct {
     const port = 3000;
 
     const taskDefinition = new FargateTaskDefinition(this, 'Task', {
-      cpu: 256,
-      memoryLimitMiB: 512,
+      cpu: 512,
+      memoryLimitMiB: 1024,
       runtimePlatform: { cpuArchitecture: CpuArchitecture.X86_64 },
     });
 
@@ -104,7 +104,13 @@ export class WebService extends Construct {
     });
 
     scaling.scaleOnCpuUtilization('CpuScaling', {
-      targetUtilizationPercent: 50,
+      targetUtilizationPercent: 70,
+      scaleInCooldown: Duration.seconds(60),
+      scaleOutCooldown: Duration.seconds(60),
+    });
+
+    scaling.scaleOnMemoryUtilization('MemoryScaling', {
+      targetUtilizationPercent: 70,
       scaleInCooldown: Duration.seconds(60),
       scaleOutCooldown: Duration.seconds(60),
     });
