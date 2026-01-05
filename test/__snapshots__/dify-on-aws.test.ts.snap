@@ -13,17 +13,7 @@ exports[`Snapshot test 1`] = `
             {
               "Ref": "ClusterEB0386A7",
             },
-            " --container Main --interactive --command "bash" --task TASK_ID",
-          ],
-        ],
-      },
-    },
-    "ConsoleListTasksCommand": {
-      "Value": {
-        "Fn::Join": [
-          "",
-          [
-            "aws ecs list-tasks --region us-west-2 --cluster ",
+            " --container Main --interactive --command "bash" --task $(aws ecs list-tasks --region us-west-2 --cluster ",
             {
               "Ref": "ClusterEB0386A7",
             },
@@ -34,7 +24,7 @@ exports[`Snapshot test 1`] = `
                 "Name",
               ],
             },
-            " --desired-status RUNNING",
+            " --desired-status RUNNING --query 'taskArns[0]' --output text)",
           ],
         ],
       },
@@ -59,7 +49,7 @@ exports[`Snapshot test 1`] = `
       "Properties": {
         "Code": {
           "S3Bucket": "cdk-hnb659fds-assets-123456789012-us-west-2",
-          "S3Key": "9d043014be736e8162bcc7ec5590cc6d2ff24fd0d9c73a5c5d595151c5fdad00.zip",
+          "S3Key": "bc8ef58951f4c88e641dd23090e9d2e2e61c7530a07960e767522941e959b625.zip",
         },
         "Handler": "index.handler",
         "Role": {
@@ -68,7 +58,7 @@ exports[`Snapshot test 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Timeout": 120,
       },
       "Type": "AWS::Lambda::Function",
@@ -554,7 +544,7 @@ exports[`Snapshot test 1`] = `
                 "/api",
                 "/v1",
                 "/files",
-                "/console/api/*",
+                "/triggers",
               ],
             },
           },
@@ -581,9 +571,11 @@ exports[`Snapshot test 1`] = `
             "Field": "path-pattern",
             "PathPatternConfig": {
               "Values": [
+                "/console/api/*",
                 "/api/*",
                 "/v1/*",
                 "/files/*",
+                "/triggers/*",
               ],
             },
           },
@@ -1040,6 +1032,10 @@ exports[`Snapshot test 1`] = `
                 "Value": "https://dify.example.com",
               },
               {
+                "Name": "TRIGGER_URL",
+                "Value": "https://dify.example.com",
+              },
+              {
                 "Name": "SQLALCHEMY_POOL_PRE_PING",
                 "Value": "True",
               },
@@ -1443,8 +1439,12 @@ exports[`Snapshot test 1`] = `
                 "Value": "pgvector",
               },
               {
-                "Name": "PLUGIN_API_URL",
+                "Name": "PLUGIN_DAEMON_URL",
                 "Value": "http://localhost:5002",
+              },
+              {
+                "Name": "CODE_EXECUTION_ENDPOINT",
+                "Value": "http://localhost:8194",
               },
               {
                 "Name": "MARKETPLACE_API_URL",
@@ -1611,6 +1611,12 @@ exports[`Snapshot test 1`] = `
               },
               {
                 "Name": "SECRET_KEY",
+                "ValueFrom": {
+                  "Ref": "ApiServiceEncryptionSecretF73F9ECD",
+                },
+              },
+              {
+                "Name": "CODE_EXECUTION_API_KEY",
                 "ValueFrom": {
                   "Ref": "ApiServiceEncryptionSecretF73F9ECD",
                 },
@@ -2422,6 +2428,7 @@ exports[`Snapshot test 1`] = `
             },
             {
               "Action": [
+                "bedrock:GetInferenceProfile",
                 "bedrock:InvokeModel",
                 "bedrock:InvokeModelWithResponseStream",
                 "bedrock:ListFoundationModels",
@@ -2513,7 +2520,7 @@ exports[`Snapshot test 1`] = `
             "Arn",
           ],
         },
-        "Runtime": "nodejs20.x",
+        "Runtime": "nodejs22.x",
         "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
@@ -2543,6 +2550,7 @@ exports[`Snapshot test 1`] = `
     "PostgresCluster53E5BDAB": {
       "DeletionPolicy": "Delete",
       "Properties": {
+        "AutoMinorVersionUpgrade": false,
         "CopyTagsToSnapshot": true,
         "DBClusterParameterGroupName": {
           "Ref": "PostgresParameterGroupC3694DF2",
@@ -2553,7 +2561,7 @@ exports[`Snapshot test 1`] = `
         "DatabaseName": "main",
         "EnableHttpEndpoint": true,
         "Engine": "aurora-postgresql",
-        "EngineVersion": "15.7",
+        "EngineVersion": "15.12",
         "MasterUserPassword": {
           "Fn::Join": [
             "",

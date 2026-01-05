@@ -90,6 +90,8 @@ export class ApiService extends Construct {
         SERVICE_API_URL: alb.url,
         // The URL prefix for Web APP frontend, refers to the Web App base URL of WEB service if web app domain is different from console or api domain.
         APP_WEB_URL: alb.url,
+        // The base URL prefix for webhook callbacks in trigger feature, refers to the base URL of the current API service if trigger domain is different from api domain.
+        TRIGGER_URL: alb.url,
 
         // Enable pessimistic disconnect handling for recover from Aurora automatic pause
         // https://docs.sqlalchemy.org/en/20/core/pooling.html#disconnect-handling-pessimistic
@@ -221,7 +223,10 @@ export class ApiService extends Construct {
         VECTOR_STORE: 'pgvector',
         PGVECTOR_DATABASE: postgres.pgVectorDatabaseName,
 
-        PLUGIN_API_URL: `http://localhost:${pluginDaemonPort}`,
+        PLUGIN_DAEMON_URL: `http://localhost:${pluginDaemonPort}`,
+
+        // The sandbox service endpoint.
+        CODE_EXECUTION_ENDPOINT: 'http://localhost:8194',
 
         MARKETPLACE_API_URL: 'https://marketplace.dify.ai',
         MARKETPLACE_URL: 'https://marketplace.dify.ai',
@@ -252,6 +257,7 @@ export class ApiService extends Construct {
         REDIS_PASSWORD: ecs.Secret.fromSecretsManager(redis.secret),
         CELERY_BROKER_URL: ecs.Secret.fromSsmParameter(redis.brokerUrl),
         SECRET_KEY: ecs.Secret.fromSecretsManager(encryptionSecret),
+        CODE_EXECUTION_API_KEY: ecs.Secret.fromSecretsManager(encryptionSecret),
         PLUGIN_DAEMON_KEY: ecs.Secret.fromSecretsManager(encryptionSecret),
         ...(email
           ? {
@@ -401,6 +407,7 @@ export class ApiService extends Construct {
     taskDefinition.taskRole.addToPrincipalPolicy(
       new PolicyStatement({
         actions: [
+          'bedrock:GetInferenceProfile',
           'bedrock:InvokeModel',
           'bedrock:InvokeModelWithResponseStream',
           'bedrock:ListFoundationModels',
@@ -450,7 +457,7 @@ export class ApiService extends Construct {
     postgres.connections.allowDefaultPortFrom(service);
     redis.connections.allowDefaultPortFrom(service);
 
-    const paths = ['/console/api', '/api', '/v1', '/files'];
+    const paths = ['/console/api', '/api', '/v1', '/files', '/triggers'];
     alb.addEcsService('Api', service, port, '/health', [...paths, ...paths.map((p) => `${p}/*`)]);
     alb.addEcsService(
       'Extension',
@@ -476,12 +483,8 @@ export class ApiService extends Construct {
       }),
     });
 
-    new CfnOutput(Stack.of(this), 'ConsoleListTasksCommand', {
-      value: `aws ecs list-tasks --region ${Stack.of(this).region} --cluster ${cluster.clusterName} --service-name ${service.serviceName} --desired-status RUNNING`,
-    });
-
     new CfnOutput(Stack.of(this), 'ConsoleConnectToTaskCommand', {
-      value: `aws ecs execute-command --region ${Stack.of(this).region} --cluster ${cluster.clusterName} --container Main --interactive --command "bash" --task TASK_ID`,
+      value: `aws ecs execute-command --region ${Stack.of(this).region} --cluster ${cluster.clusterName} --container Main --interactive --command "bash" --task $(aws ecs list-tasks --region ${Stack.of(this).region} --cluster ${cluster.clusterName} --service-name ${service.serviceName} --desired-status RUNNING --query 'taskArns[0]' --output text)`,
     });
   }
 }
