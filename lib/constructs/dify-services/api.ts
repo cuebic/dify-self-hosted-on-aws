@@ -432,7 +432,7 @@ export class ApiService extends Construct {
           weight: props.useFargateSpot ? 1 : 0,
         },
       ],
-      enableExecuteCommand: true,
+      enableExecuteCommand: false,
       minHealthyPercent: 100,
     });
 
