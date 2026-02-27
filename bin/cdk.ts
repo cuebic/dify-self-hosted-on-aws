@@ -12,7 +12,7 @@ export const props: EnvironmentProps = {
   // Set Dify version
   difyImageTag: 'main',
   difySandboxImageTag: 'main',
-  difyPluginDaemonImageTag: 'main-local',
+  difyPluginDaemonImageTag: 'stable-20260224',
   // Set plugin-daemon version to stable release
   useCloudFront: false,
   customEcrRepositoryName: 'dify-repo',
