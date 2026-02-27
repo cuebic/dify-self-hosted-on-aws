@@ -3,6 +3,9 @@ import { promisify } from 'util';
 import { props } from '../bin/cdk';
 
 const execAsync = promisify(exec);
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const MAX_RETRIES = 3;
 
 const difyImageTag = props.difyImageTag ?? 'latest';
 const difySandboxImageTag = props.difySandboxImageTag ?? 'latest';
@@ -59,15 +62,29 @@ async function ensureECRRepository(repositoryName: string, awsConfig: AWSConfig)
 }
 
 async function processImage(dockerHubImage: string, repositoryName: string, awsConfig: AWSConfig): Promise<void> {
-  try {
-    const { accountId, region } = awsConfig;
-    const ecrImageTag = dockerHubImage.replace(':', '_').replace('langgenius/', '');
-    const ecrImageUri = `${accountId}.dkr.ecr.${region}.amazonaws.com/${repositoryName}:${ecrImageTag}`;
+  const { accountId, region } = awsConfig;
+  const ecrImageTag = dockerHubImage.replace(':', '_').replace('langgenius/', '');
+  const ecrImageUri = `${accountId}.dkr.ecr.${region}.amazonaws.com/${repositoryName}:${ecrImageTag}`;
+  const command = `docker buildx imagetools create --tag "${ecrImageUri}" "${dockerHubImage}"`;
 
-    await execAsync(`docker buildx imagetools create --tag "${ecrImageUri}" "${dockerHubImage}"`);
-    console.log(`Successfully processed image: ${dockerHubImage}`);
-  } catch (error) {
-    throw new Error(`Failed to process image ${dockerHubImage}: ${error}`);
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await execAsync(command);
+      console.log(`Successfully processed image: ${dockerHubImage}`);
+      return;
+    } catch (error) {
+      const isLastAttempt = attempt === MAX_RETRIES;
+      if (isLastAttempt) {
+        throw new Error(`Failed to process image ${dockerHubImage}: ${error}`);
+      }
+
+      const waitMs = attempt * 2000;
+      console.warn(
+        `Failed to process image ${dockerHubImage} (attempt ${attempt}/${MAX_RETRIES}): ${error}`,
+      );
+      console.warn(`Retrying in ${waitMs / 1000} seconds...`);
+      await sleep(waitMs);
+    }
   }
 }
 
